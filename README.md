@@ -2,7 +2,7 @@
 
 A repository to test a number of technologies for metadata capture to facilitate data harmonisation and transfer functions.
 
-In order to facilitate the usage of transfer functions, it is important to understand the nature of the source data, the augmented data and the transfer funtions itself. 
+In order to facilitate the usage of transfer functions, it is important to understand the nature of the source data, the augmented data and the transfer functions itself. 
 For each (augmented) observation result, we need carefull registration of the observed soil property, the unit of measure, the sample preparation, observation procedure and any applied transfer functions.
 A number of standardised approaches are available to capture this information.
 This repository collects those approaches and tests them on a number of indicators:
