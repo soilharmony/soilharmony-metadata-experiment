@@ -18,6 +18,10 @@ Identified approaches:
 - [Frictionless Data - Table Schema](https://specs.frictionlessdata.io/table-schema/) is a basic mechanism to capture metadata about the schema of tabular data
 - [Schema.org - variableMeasured](https://schema.org/variableMeasured) is a mechanism in the semantic web/search engine domain to annotate datasets with measurement details
 
+This work builds on work of the [SoilWise project](https://doi.org/10.3030/101112838) in their [soil observation data encodings repository](https://github.com/soilwise-he/soil-observation-data-encodings).
+
+We welcome you to contribute to this effort, by trying out the approaches on your data, suggest alternative solutions, etc. by submitting an issue in the issue tracker.
+
 ---
 
 The project [Towards a harmonised pan-European monitoring of soil health descriptors](https://doi.org/10.3030/101296615), also known as `SOILHARMONY`, receives funding from the European Union’s HORIZON Innovation Actions 2022 under grant agreement No. 101296615.
