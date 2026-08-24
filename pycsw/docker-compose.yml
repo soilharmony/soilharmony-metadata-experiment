@@ -1,0 +1,11 @@
+services:
+
+  pycsw:
+    restart: always 
+    image: "ghcr.io/geopython/pycsw:latest"
+    ports:
+      - "8000:8000"
+    container_name: "pycsw"
+    volumes:
+      - ./templates/_base.html:/home/pycsw/pycsw/pycsw/templates/_base.html # to override layout
+      - ./templates/landing_page.html:/home/pycsw/pycsw/pycsw/templates/landing_page.html # to override layout
