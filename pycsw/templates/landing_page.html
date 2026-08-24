@@ -1,0 +1,350 @@
+{% extends "_base.html" %}
+{% block title %}{{ super() }} Home {% endblock %}
+
+{% block body %}
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<header class="hero">
+  <div class="container position-relative" style="z-index: 2;">
+
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      Academic soil data project
+    </div>
+
+    <h1>
+      Harmonizing soil data
+      <span>for healthier soils.</span>
+    </h1>
+
+    <p class="hero-lead">
+      Soil-Harmony brings together soil datasets, indicators and
+      harmonization methods to make heterogeneous soil information
+      more comparable, reusable and useful for understanding
+      soil health.
+    </p>
+
+    <div class="hero-actions d-flex flex-column flex-sm-row gap-2">
+      <a href="collections/metadata:main/items" class="btn btn-soil">
+        Explore the catalogue
+        <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+
+      <a href="#methods" class="btn btn-outline-soil">
+        Learn about harmonization
+      </a>
+    </div>
+
+  </div>
+</header>
+
+
+<!-- =========================================================
+     STATISTICS
+========================================================= -->
+
+<div class="container stats-wrap">
+  <div class="stats-card">
+    <div class="row g-0">
+
+      <div class="col-lg-3 col-sm-6">
+        <div class="stat">
+          <div class="stat-number">48</div>
+          <div class="stat-label">Datasets catalogued</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <div class="stat">
+          <div class="stat-number">126</div>
+          <div class="stat-label">Soil indicators</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <div class="stat">
+          <div class="stat-number">19</div>
+          <div class="stat-label">European regions</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <div class="stat">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Harmonization methods</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- =========================================================
+     CATALOGUE
+========================================================= -->
+
+<section class="section" id="catalogue">
+
+  <div class="container">
+
+    <div class="mb-5">
+      <div class="section-kicker">Data catalogue</div>
+
+      <h2 class="section-title display-6">
+        Explore soil data
+      </h2>
+
+      <p class="section-intro mt-3">
+        Browse datasets and resources collected through the
+        Soil-Harmony project. Filter the catalogue by indicator,
+        geographic coverage, data type or soil property.
+      </p>
+    </div>
+
+
+    <div class="catalogue-toolbar">
+    <form action="collections/metadata:main/items" method="get">
+      <div class="row g-2">
+
+        <div class="col-lg-6">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+
+            <input
+              id="searchInput" name="q"
+              type="search"
+              class="form-control"
+              placeholder="Search datasets, indicators, regions..."
+              aria-label="Search catalogue">
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <select id="sortSelect" name="sortby" class="form-select" style="height:48px;">
+            <option value="title">Sort by title</option>
+            <option value="newest">Recently added</option>
+
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <input type="submit" class="btn btn-lg btn-secondary w-100" value="Search"/>
+        </div>
+      </div>
+    </form>
+    </div>
+
+
+  </div>
+</section>
+
+
+<!-- =========================================================
+     METHODS
+========================================================= -->
+
+<section class="section section-soft" id="methods">
+
+  <div class="container">
+
+    <div class="row align-items-end mb-5">
+
+      <div class="col-lg-7">
+
+        <div class="section-kicker">The harmonization approach</div>
+
+        <h2 class="section-title display-6">
+          From heterogeneous measurements to comparable evidence.
+        </h2>
+
+      </div>
+
+      <div class="col-lg-5">
+        <p class="section-intro mb-0">
+          Soil-Harmony documents the context behind measurements,
+          identifies differences between protocols and provides
+          transparent approaches for making soil information comparable.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <article class="method-card">
+
+          <div class="method-number">01 / CONTEXT</div>
+
+          <h3>
+            Describe the measurement
+          </h3>
+
+          <p>
+            Capture sampling depth, analytical method, units,
+            laboratory procedures and other contextual information
+            needed to interpret observations.
+          </p>
+
+        </article>
+      </div>
+
+
+      <div class="col-md-4">
+        <article class="method-card">
+
+          <div class="method-number">02 / ALIGN</div>
+
+          <h3>
+            Identify comparability
+          </h3>
+
+          <p>
+            Map terminology, classifications, units and protocols
+            to common concepts while retaining information about
+            the original observation.
+          </p>
+
+        </article>
+      </div>
+
+
+      <div class="col-md-4">
+        <article class="method-card">
+
+          <div class="method-number">03 / HARMONIZE</div>
+
+          <h3>
+            Produce reusable data
+          </h3>
+
+          <p>
+            Apply documented transformations and uncertainty
+            information so harmonized data can support research,
+            monitoring and soil-health assessment.
+          </p>
+
+        </article>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     RESEARCH
+========================================================= -->
+
+<section class="section" id="research">
+
+  <div class="container">
+
+    <div class="row g-4">
+
+      <div class="col-lg-7">
+
+        <article class="research-card">
+
+          <div class="section-kicker">
+            Featured research
+          </div>
+
+          <h3 class="mt-3">
+            Why harmonized soil data matters
+          </h3>
+
+          <p class="mt-3">
+            Soil observations are collected using diverse sampling
+            designs, laboratory methods and classification systems.
+            Without accounting for these differences, combining datasets
+            can introduce systematic inconsistencies.
+          </p>
+
+          <p>
+            Soil-Harmony develops transparent approaches for integrating
+            these observations while preserving their provenance and
+            uncertainty.
+          </p>
+
+          <a href="#" class="research-link">
+            Explore the research
+            <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+
+        </article>
+
+      </div>
+
+
+      <div class="col-lg-5">
+
+        <div class="method-card">
+
+          <div class="method-number">PROJECT RESOURCE</div>
+
+          <h3>
+            Soil-Harmony methodology guide
+          </h3>
+
+          <p>
+            A practical guide to the terminology, metadata,
+            harmonization workflows and quality considerations
+            used throughout the project.
+          </p>
+
+          <a href="#" class="dataset-link">
+            Read the methodology guide
+            <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     ABOUT
+========================================================= -->
+
+<section class="section section-soft" id="about">
+
+  <div class="container">
+
+    <div class="row">
+
+      <div class="col-lg-8">
+
+        <div class="section-kicker">About Soil-Harmony</div>
+
+        <h2 class="section-title display-6">
+          Building a common language for soil information.
+        </h2>
+
+        <p class="section-intro mt-4">
+          Soil-Harmony is an academic research project focused on
+          improving the comparability and interoperability of soil
+          data. The project brings together researchers, data
+          scientists and soil experts to develop transparent
+          approaches for harmonizing heterogeneous observations.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+{% endblock %}
