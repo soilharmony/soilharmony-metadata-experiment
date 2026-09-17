@@ -1,0 +1,251 @@
+{% extends "_base.html" %}
+{% block title %}{{ super() }} Items {% endblock %}
+
+
+{% block crumbs %}
+{{ super() }} /
+<a href="{{ config['server']['url'] }}/collections">Collections</a> /
+<a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}">{{ data['title'] }}</a> /
+<a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items">Items</a>
+{% endblock %}
+
+{% block body %}
+
+<section id="items" class="mt-3">
+
+{% set nav_links = namespace(prev=None, next=None, self=None) %}
+{% for link in data['links'] %}
+  {% if link['rel'] == 'prev' %}
+    {% set nav_links.prev = link['href'] %}
+  {% endif %}
+  {% if link['rel'] == 'self' %}
+    {% set nav_links.self = link['href'] %}
+  {% endif %}
+  {% if link['rel'] == 'next' %}
+    {% set nav_links.next = link['href'] %}
+  {% endif %}
+{% endfor %}
+
+{# parse the querystring as dict #}
+{% set attrs = {} %}
+{% if '?' in nav_links.self %}
+  {% for kv in nav_links.self.split('#')[0].split('?').pop().split('&') %}
+    {% if kv.split('=')[0] not in [None,'']  %}
+      {{ attrs.update({kv.split('=')[0] : kv.split('=')[1]}) or '' }} 
+    {% endif %}
+  {% endfor %}
+{% else %}
+  {% set nav_links.self = link['href'].split('#')[0] + '?' %}  
+{% endif %}
+
+{# update existing url with new key,val. indent prevents spaces in output #}
+{# reset pagination, else you may end up in empty result #}
+{% macro updateurl(key=None,val=None) %}{{ nav_links.self.split('?')[0] }}?{% 
+  for at in attrs.keys() %}{%
+    if at != 'offset' %}{%
+      if attrs[at] not in [None,''] %}{% 
+        if key not in [None,''] and key == at %}{% 
+          if val != '' %}&{{ at }}={{ val }}{% endif %}{% 
+        else %}&{{ at }}={{ attrs[at] }}{% 
+        endif %}{% 
+      endif %}{% 
+    endif %}{%
+  endfor %}{%
+  if key not in attrs.keys() %}&{{ key }}={{ val }}{% endif %}{% 
+endmacro %}
+
+{% macro reseturl(key,val) %}{{ 
+  nav_links.self.split('?')[0]}}?facets=true{% 
+    if 'q' in attrs %}&q={{ attrs['q'] }}{% endif %}{%
+    if 'sortby' in attrs %}&sortby={{ attrs['sortby'] }}{% endif %}{%
+endmacro %}
+
+
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-lg-12">
+    <div class="catalogue-toolbar">
+    <form action="{{ config['server']['url'] }}/collections/metadata:main/items" method="get">
+      <div class="row g-2">
+
+        <div class="col-lg-4">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input
+              id="searchInput" name="q"
+              type="search" value="{{ attrs.get('q','').replace('+',' ') }}"
+              class="form-control"
+              placeholder="Search by keyword, topic, region..."
+              aria-label="Search catalogue">
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <select id="sortType" name="type" class="form-select" style="height:48px;">
+            <option value="">Select type</option>
+            <option value="dataset" 
+              {% if attrs['type'] == 'dataset' %}selected{% endif %}>
+                Datasets</option>
+            <option value="descriptor"
+            {% if attrs['type'] == 'descriptor' %}selected{% endif %}>
+              Descriptors</option>
+            <option value="protocol"
+            {% if attrs['type'] == 'protocol' %}selected{% endif %}>
+            Protocols</option>
+            <option value="function"
+            {% if attrs['type'] == 'function' %}selected{% endif %}>
+            Transfer functions</option>
+            <option value="document"
+            {% if attrs['type'] == 'document' %}selected{% endif %}>
+            Literature</option>
+          </select>
+        </div>
+        <div class="col-lg-3">
+          <select id="sortSelect" name="sortby" class="form-select" style="height:48px;">
+            <option value="title" {% if attrs['sortby'] == 'title' %}selected{% endif %}>Sort by title</option>
+            <option value="-created" {% if attrs['sortby'] == '-created' %}selected{% endif %}>Sort by date</option>
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <input type="submit" class="btn btn-lg btn-secondary w-100" value="Search"/>
+        </div>
+      </div>
+    </form>
+    </div>
+    </div>
+  </div>
+
+<script>
+  $('#searchInput').val(decodeURIComponent("{{ attrs.get('q', '').replace('+',' ') }}"))
+</script>
+
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="filter-title">
+            Filter catalogue
+            <div class="form-check form-switch" class="pt-3">
+              <input class="form-check-input" type="checkbox" {% if 'facets=true' in nav_links.self %}checked="true"{% endif %} onchange="facet(this.checked)"  role="switch" id="enableFacets">
+              <label class="form-check-label" for="enableFacets">Facets</label>
+            </div>
+          </div>
+          {% if 'facets=true' in nav_links.self %}
+            <a href="{{ reseturl() }}" id="clearFilters" class="btn btn-sm btn-link p-0 text-decoration-none" style="color:var(--soil-green);">Clear</a>
+          {% endif %}
+        </div>
+        {% if data['facets'] %}
+        {% for facet in data['facets'].keys() %}
+        {% if data['facets'][facet]['buckets']|length > 0 %}
+        <div class="filter-group">
+          <div class="small fw-bold mb-3">{{ facet }} {% if facet in attrs.keys() %}
+              <a href="{{ updateurl(facet,'') }}" class="btn btn-sm btn-outline-secondary" style="float:right">Reset</a>
+              {% endif %}
+          </div>
+          {% for bucket in data['facets'][facet]['buckets'] %}
+          {% if loop.index == 8 %}
+            <div id="more-{{facet}}" class="collapse">
+          {% endif %}
+          {% if bucket['value'] %}
+          <a href="{{ updateurl(facet,bucket['value']) }}" title="{{bucket['value']}}"
+            >{{(bucket['value'] or "") | truncate(20, False, '..') | capitalize }}</a>
+          <span class="badge rounded-pill bg-secondary" style="float:right">{{bucket['count']}}</span><br>
+          {% endif %}
+          {% endfor %}
+          {% if data['facets'][facet]['buckets']|length > 7 %}</div>
+          <button onclick="$('#more-{{facet}}').toggle()" 
+            class="btn btn-sm btn-outline-secondary mt-2">Show more</button>
+          {% endif %}
+          </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+
+
+    </div>
+
+    <div class="col-lg-9">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="small text-secondary">
+        Showing <strong>{{ data['numberReturned'] }}</strong> of <strong>{{ data['numberMatched'] }}</strong> resources
+      </div>
+    </div>
+
+    <div id="catalogueGrid" class="row g-4">
+      {% for rec in data['features'] %}
+      <div class="col-md-6 catalogue-item">
+        <article class="dataset-card" onclick="location.href='{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items/{{ rec['id'] }}'">
+          <div class="dataset-icon"><i class="bi bi-globe-europe-africa"></i></div>
+          <div class="dataset-type">{{ rec['properties']['type'] }}</div>
+          <h3>{{ rec['properties'].get('title', rec['id']) | truncate(100) }}</a>
+          </h3>
+          <p class="dataset-description">{{ rec['properties']['description'] | truncate(250)  }}</p>
+          <div>
+            {% for theme in rec['properties'].get('themes',[]) %}
+            {% for concept in theme['concepts'] %}
+            {% if concept['id'] %}              
+            <span class="tag">{{ concept['id'] }}</span>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+            {% for concept in rec['properties'].get('themes',[]) %}
+            {% if concept %} 
+            <span class="tag">{{ concept }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          <div class="dataset-meta d-flex justify-content-between">
+            <span><i class="bi bi-calendar3 me-1"></i> {{ (rec['properties'].get('created') or rec['properties'].get('updated') or '').split('T').pop() }}</span>
+            <a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items/{{ rec['id'] }}" class="dataset-link">View details <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="row ps-2">
+    <div class="col-lg-12">
+      <div class="d-flex justify-content-center pt-3 pb-3">
+          <div>
+            {% if nav_links.prev %}
+            <a href="{{ nav_links.prev }}"><button type="button" class="btn btn-sm btn-primary">Prev</button></a>
+            {% else %}
+            <button type="button" class="btn btn-sm btn-primary" disabled>Prev</button>
+            {% endif %}
+          </div>
+          <div class="ps-3 pe-3">
+            Showing {{ data['numberReturned'] }} of {{ data['numberMatched'] }} results.
+          </div>
+          <div>
+            {% if nav_links.next %}
+            <a href="{{ nav_links.next }}"><button type="button" class="btn btn-sm btn-primary">Next</button></a>
+            {% else %}
+            <button type="button" class="btn btn-sm btn-primary" disabled>Next</button>
+            {% endif %}
+          </div>
+      </div>
+    </div>
+      
+    </div>
+  </div>
+</div>
+</section>
+
+<script>
+function sort(val){
+  location.href="{{updateurl('sortby','sortprop')}}".replace('sortprop',val);
+}
+function facet(val){
+  location.href="{{updateurl('facets','facetprop')}}".replace('facetprop',val);
+}
+</script>
+<style>
+  .dataset-card:hover {
+    cursor: pointer;
+  }
+</style>
+{% endblock %}

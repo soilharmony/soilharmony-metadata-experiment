@@ -1,0 +1,822 @@
+{% extends "_base.html" %}
+{% block title %}{{ data.get('properties',{}).get('title',data['id']) }} - {{ super() }}{% endblock %}
+{% block extrahead %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<style>
+
+    /* =========================================================
+       BREADCRUMB
+    ========================================================= */
+
+    .breadcrumb-section {
+      background: var(--soil-cream);
+      border-bottom: 1px solid var(--soil-border);
+    }
+
+    .breadcrumb {
+      margin-bottom: 0;
+      padding: 1rem 0;
+      font-size: .82rem;
+    }
+
+    .breadcrumb a {
+      color: var(--soil-green-dark);
+      text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+      color: var(--soil-muted);
+    }
+
+    /* =========================================================
+       RECORD HEADER
+    ========================================================= */
+
+    .record-header {
+      padding: 4.5rem 0 3.5rem;
+      background:
+        radial-gradient(
+          circle at 90% 10%,
+          rgba(184, 138, 74, .13),
+          transparent 28%
+        ),
+        var(--soil-cream);
+      border-bottom: 1px solid var(--soil-border);
+    }
+
+    .record-type {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--soil-green-dark);
+      font-size: .74rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .record-type-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--soil-ochre);
+    }
+
+    .record-title {
+      max-width: 1000px;
+      margin-top: .9rem;
+      color: var(--soil-dark);
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      font-weight: 750;
+      line-height: 1.02;
+      letter-spacing: -.05em;
+    }
+
+    .record-lead {
+      max-width: 850px;
+      margin-top: 1.3rem;
+      color: #606960;
+      font-size: 1.1rem;
+      line-height: 1.75;
+    }
+
+    .record-tags {
+      margin-top: 1.7rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: .35rem .65rem;
+      margin: .15rem .15rem .15rem 0;
+      border-radius: 6px;
+      background: #e8eee5;
+      color: #526053;
+      font-size: .75rem;
+      font-weight: 650;
+    }
+
+    /* =========================================================
+       HEADER METADATA
+    ========================================================= */
+
+    .record-meta {
+      margin-top: 2.5rem;
+      padding-top: 1.4rem;
+      border-top: 1px solid #d8ded5;
+    }
+
+    .meta-item {
+      padding-right: 2rem;
+    }
+
+    .meta-label {
+      color: #7a837b;
+      font-size: .7rem;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin-bottom: .3rem;
+    }
+
+    .meta-value {
+      color: var(--soil-dark);
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    .meta-value a {
+      color: var(--soil-green-dark);
+      text-decoration: none;
+    }
+
+    .meta-value a:hover {
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       MAIN CONTENT
+    ========================================================= */
+
+    .record-section {
+      padding: 4.5rem 0;
+    }
+
+    .content-section {
+      padding-bottom: 3.8rem;
+      margin-bottom: 3.8rem;
+      border-bottom: 1px solid var(--soil-light-border);
+    }
+
+    .content-section:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .section-kicker {
+      color: var(--soil-green);
+      font-size: .73rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: .55rem;
+    }
+
+    .section-title {
+      color: var(--soil-dark);
+      font-size: 1.65rem;
+      font-weight: 750;
+      letter-spacing: -.03em;
+      margin-bottom: 1.2rem;
+    }
+
+    .prose {
+      color: #59635a;
+      font-size: .98rem;
+      line-height: 1.85;
+    }
+
+    /* =========================================================
+       FILE DOWNLOADS
+    ========================================================= */
+
+    .file-card {
+      border: 1px solid var(--soil-border);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--soil-light-border);
+    }
+
+    .file-row:last-child {
+      border-bottom: 0;
+    }
+
+    .file-icon {
+      width: 43px;
+      height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 9px;
+      background: var(--soil-sage);
+      color: var(--soil-green-dark);
+      font-size: 1.15rem;
+    }
+
+    .file-name {
+      color: var(--soil-dark);
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .file-info {
+      color: var(--soil-muted);
+      font-size: .75rem;
+      margin-top: .15rem;
+    }
+
+    .file-download {
+      margin-left: auto;
+      color: var(--soil-green-dark);
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .file-download:hover {
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       AUTHORS
+    ========================================================= */
+
+    .author-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .author-card {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: 1rem;
+      border: 1px solid var(--soil-border);
+      border-radius: 11px;
+      background: #fff;
+    }
+
+    .author-avatar {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--soil-cream);
+      color: var(--soil-green-dark);
+      font-weight: 750;
+      font-size: .8rem;
+    }
+
+    .author-name {
+      color: var(--soil-dark);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .author-affiliation {
+      color: var(--soil-muted);
+      font-size: .74rem;
+      margin-top: .1rem;
+    }
+
+    /* =========================================================
+       REFERENCES
+    ========================================================= */
+
+    .reference {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--soil-light-border);
+    }
+
+    .reference:last-child {
+      border-bottom: 0;
+    }
+
+    .reference-number {
+      color: var(--soil-ochre);
+      font-size: .72rem;
+      font-weight: 750;
+    }
+
+    .reference-text {
+      color: #59635a;
+      font-size: .87rem;
+      line-height: 1.6;
+    }
+
+    .reference a {
+      color: var(--soil-green-dark);
+      text-decoration: none;
+    }
+
+    /* =========================================================
+       SIDEBAR
+    ========================================================= */
+
+    .sidebar {
+      position: sticky;
+      top: 90px;
+    }
+
+    .sidebar-card {
+      background: #fff;
+      border: 1px solid var(--soil-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .sidebar-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      color: var(--soil-dark);
+      font-size: .95rem;
+      font-weight: 750;
+      margin-bottom: .3rem;
+    }
+
+    .sidebar-title i {
+      color: var(--soil-green);
+    }
+
+    .sidebar-description {
+      color: var(--soil-muted);
+      font-size: .76rem;
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+
+    /* =========================================================
+       DOWNLOAD SUMMARY
+    ========================================================= */
+
+    .download-panel {
+      background: var(--soil-dark);
+      color: #fff;
+      border-radius: 14px;
+      padding: 1.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .download-panel .small-label {
+      color: #b8c5b7;
+      font-size: .7rem;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .download-panel h3 {
+      margin: .35rem 0 .8rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .download-panel p {
+      color: #bdc8bd;
+      font-size: .78rem;
+      line-height: 1.55;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      width: 100%;
+      padding: .7rem 1rem;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--soil-dark);
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .btn-download:hover {
+      background: var(--soil-sage);
+      color: var(--soil-dark);
+    }
+
+    /* =========================================================
+       LICENSE
+    ========================================================= */
+
+    .license-box {
+      padding: 1rem;
+      border-radius: 10px;
+      background: var(--soil-cream);
+    }
+
+    .license-name {
+      color: var(--soil-dark);
+      font-size: .84rem;
+      font-weight: 700;
+    }
+
+    .license-description {
+      color: var(--soil-muted);
+      font-size: .73rem;
+      line-height: 1.5;
+      margin-top: .3rem;
+    }
+
+    /* =========================================================
+       CROSSREF WIDGET
+    ========================================================= */
+
+    .external-widget {
+      background: #fbfcf9;
+      border: 1px solid var(--soil-border);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 160px;
+    }
+
+    .widget-provider {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: #7b847b;
+      font-size: .67rem;
+      font-weight: 650;
+      margin-bottom: .8rem;
+    }
+
+    .widget-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      border: 1px dashed #ccd4c9;
+      border-radius: 8px;
+      color: #7b847b;
+      font-size: .75rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* =========================================================
+       GISCUss WIDGET
+    ========================================================= */
+
+    .discussion-widget {
+      background: #fff;
+      border: 1px solid var(--soil-border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .discussion-header {
+      padding: .9rem 1rem;
+      border-bottom: 1px solid var(--soil-light-border);
+      background: #fbfcf9;
+    }
+
+    .discussion-body {
+      padding: 1rem;
+    }
+
+    .comment-placeholder {
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed #ccd4c9;
+      border-radius: 8px;
+      color: #7b847b;
+      font-size: .75rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* =========================================================
+       CITATION BOX
+    ========================================================= */
+
+    .citation-box {
+      padding: 1.2rem;
+      border-radius: 12px;
+      background: var(--soil-cream);
+      border: 1px solid var(--soil-border);
+    }
+
+    .citation-label {
+      color: var(--soil-green);
+      font-size: .7rem;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin-bottom: .5rem;
+    }
+
+    .citation-text {
+      color: #5b655c;
+      font-family: Georgia, serif;
+      font-size: .9rem;
+      line-height: 1.7;
+    }
+
+</style>
+{% endblock %}
+
+{% block crumbs %}
+{{ super() }} /
+<a href="{{ config['server']['url'] }}/collections">Collections</a> /
+<a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}">{{ data['title'] }}</a> /
+<a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items">Items</a> /
+<a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items/{{ data['id'] }}">{{ data['id'] }}</a>
+{% endblock %}
+{% block body %}
+
+
+<!-- =========================================================
+     BREADCRUMB
+========================================================= -->
+
+{% set rprops = data.get('properties',{}) %}
+
+<div class="breadcrumb-section">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{{ config['server']['url'] }}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ config['server']['url'] }}/collections/{{ data['collection'] }}/items">Search</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ rprops.get('title',data.get('id')) | truncate(40) }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+
+<!-- =========================================================
+     RECORD HEADER
+========================================================= -->
+
+<header class="record-header">
+
+  <div class="container">
+
+    <div class="record-type">
+      <span class="record-type-dot"></span>
+      {{ rprops.get('type','publication') }}
+    </div>
+
+    <h1 class="record-title">{{ rprops.get('title',data.get('id')) }}</h1>
+
+    <div class="record-tags">
+      {% for theme in rprops.get('themes',[]) %}
+        {% for concept in theme['concepts'] %}
+          {% if concept['id'] %}              
+            <span class="tag">{{ concept['id'] }}</span>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      {% for concept in rprops.get('themes',[]) %}
+        {% if concept %} 
+          <span class="tag">{{ concept }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+
+    <!-- Metadata strip -->
+
+    <div class="record-meta">
+      <div class="row g-4">
+        <div class="col-sm-6 col-lg-3">
+          <div class="meta-item">
+            <div class="meta-label">
+              Authors
+            </div>
+            <div class="meta-value">
+              {% for cnt in rprops.get('contacts',[]) %}
+                  {{ cnt.get('name') or cnt.get('organization') or '' }}; 
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="meta-item">
+            <div class="meta-label">
+              License
+            </div>
+            <div class="meta-value">
+              {{ rprops.get('license',{}).get('name',rprops.get('license',{}).get('url','')) }}
+              {{ rprops.get('rights') or '' }}
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="meta-item">
+            <div class="meta-label">
+              Formats
+            </div>
+            <div class="meta-value">
+              {{ rprops.get('formats',{}) | map(attribute='name') | join(', ') }}
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="meta-item">
+            <div class="meta-label">
+              Created
+            </div>
+            <div class="meta-value">
+              {{ rprops.get('created',rprops.get('updated','')).split('T')[0] }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN RECORD CONTENT
+========================================================= -->
+
+<main class="record-section">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-8">
+    
+        <section class="content-section">
+          <div class="section-kicker">
+            {{ rprops.get('type','publication') }}
+          </div>
+
+          <h2 class="section-title">
+            Abstract
+          </h2>
+          <p>{{ rprops.get('description','') | safe }}</p>
+        </section>
+
+        <!-- FILES -->
+        <section class="content-section">
+          <div class="section-kicker">
+            Data access
+          </div>
+
+          <h2 class="section-title">
+            Links
+          </h2>
+
+
+          {% set excluded_rels = ['self','canonical','collection'] %}
+          
+          <div class="file-card">
+            {% for link in data['links'] %}
+            {% if link.get('rel') not in excluded_rels %}
+            {% set fname = link.get('name',link.get('href','').split('/').pop()) %}
+            <div class="file-row">
+              <div class="file-icon">
+                <i class="bi bi-filetype-csv"></i>
+              </div>
+              <div>
+                <div class="file-name">
+                  {{ fname }}
+                </div>
+                <div class="file-info">
+                  {{ link.get('description') }} {{ link.get('protocol') }} {{ link.get('rel') }}
+                </div>
+              </div>
+
+              <a href="{{ link.get('href',link.get('url')) }}"
+                class="file-download">
+                Access
+                <i class="bi bi-download ms-1"></i>
+              </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+            </div>
+        </section>
+
+        <!-- FORMAT -->
+        <section class="content-section">
+          <div class="section-kicker">
+            Technical information
+          </div>
+          <h2 class="section-title">
+            Format &amp; structure
+          </h2>
+          <div class="prose">
+            <p>
+              {% for f in rprops.get('formats',[]) %}
+              {% if f.get('name') not in [None,'','canonical'] %}
+              {{ f.get('name') }}
+              {% endif %}
+              {% endfor %}
+            </p>
+          </div>
+        </section>
+
+        <!-- AUTHORS -->
+        <section class="content-section">
+          <div class="section-kicker">
+            Contributors
+          </div>
+          <h2 class="section-title">
+            Authors
+          </h2>
+          <div class="author-list">
+
+            {% for cnt in rprops.get('contacts',[]) %}   
+            <div class="author-card">
+              
+              <div>
+                <div class="author-name">{{ cnt.get('name') or ''  }}</div>
+                <div class="author-affiliation">{{ cnt.get('organization') or '' }}</div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+
+        </section>
+
+
+        <!-- REFERENCES -->
+
+        <section class="content-section">
+
+          <div class="section-kicker">
+            Scholarly context
+          </div>
+
+          <h2 class="section-title">
+            References
+          </h2>
+
+          {% for ref in rprops.get('references',[]) %}
+          <div class="reference"> <!-- from crossref -->
+            <div class="row g-2">
+              <div class="col">
+                <div class="reference-text">
+                  <a href="{{ ref.get('href',ref.get('url')) }}">
+                    {{ ref.get('name',ref.get('href')) }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </section>
+<section class="content-section">
+
+          <div class="section-kicker">
+            Community
+          </div>
+
+          <h2 class="section-title">
+            Comments
+          </h2>
+<script src="https://giscus.app/client.js"
+        data-repo="soilharmony/soilharmony-metadata-experiment"
+        data-repo-id="R_kgDOTRZ11g"
+        data-category="Q&A"
+        data-category-id="DIC_kwDOTRZ11s4DCYiA"
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+ </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

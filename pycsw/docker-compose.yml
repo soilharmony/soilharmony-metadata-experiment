@@ -9,3 +9,4 @@ services:
     volumes:
       - ./templates/_base.html:/home/pycsw/pycsw/pycsw/templates/_base.html # to override layout
       - ./templates/landing_page.html:/home/pycsw/pycsw/pycsw/templates/landing_page.html # to override layout
+

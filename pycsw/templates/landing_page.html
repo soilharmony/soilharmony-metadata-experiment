@@ -20,8 +20,8 @@
     </h1>
 
     <p class="hero-lead">
-      Soil-Harmony brings together soil datasets, indicators and
-      harmonization methods to make heterogeneous soil information
+      SoilHarmony brings together soil datasets, descriptors,
+      protocols, and transfer functions to make heterogeneous soil information
       more comparable, reusable and useful for understanding
       soil health.
     </p>
@@ -51,31 +51,33 @@
 
       <div class="col-lg-3 col-sm-6">
         <div class="stat">
-          <div class="stat-number">48</div>
-          <div class="stat-label">Datasets catalogued</div>
+          <div class="stat-number">248</div>
+          <div class="stat-label">Datasets</div>
         </div>
       </div>
 
       <div class="col-lg-3 col-sm-6">
         <div class="stat">
-          <div class="stat-number">126</div>
-          <div class="stat-label">Soil indicators</div>
+          <div class="stat-number">22</div>
+          <div class="stat-label">Soil descriptors</div>
         </div>
       </div>
 
       <div class="col-lg-3 col-sm-6">
         <div class="stat">
-          <div class="stat-number">19</div>
-          <div class="stat-label">European regions</div>
+          <div class="stat-number">75</div>
+          <div class="stat-label">Protocols</div>
         </div>
       </div>
 
       <div class="col-lg-3 col-sm-6">
         <div class="stat">
-          <div class="stat-number">14</div>
-          <div class="stat-label">Harmonization methods</div>
+          <div class="stat-number">167</div>
+          <div class="stat-label">Transfer functions</div>
         </div>
       </div>
+
+
 
     </div>
   </div>
@@ -91,16 +93,16 @@
   <div class="container">
 
     <div class="mb-5">
-      <div class="section-kicker">Data catalogue</div>
+      <div class="section-kicker">Catalogue</div>
 
       <h2 class="section-title display-6">
-        Explore soil data
+        Explore soil resources
       </h2>
 
       <p class="section-intro mt-3">
         Browse datasets and resources collected through the
-        Soil-Harmony project. Filter the catalogue by indicator,
-        geographic coverage, data type or soil property.
+        SoilHarmony project. Filter the catalogue by descriptor,
+        geographic coverage, data type or transfer function.
       </p>
     </div>
 
@@ -109,24 +111,31 @@
     <form action="collections/metadata:main/items" method="get">
       <div class="row g-2">
 
-        <div class="col-lg-6">
+        <div class="col-lg-4">
           <div class="search-box">
             <i class="bi bi-search"></i>
-
             <input
               id="searchInput" name="q"
               type="search"
               class="form-control"
-              placeholder="Search datasets, indicators, regions..."
+              placeholder="Search by keyword, topic, region..."
               aria-label="Search catalogue">
           </div>
         </div>
-
-        <div class="col-lg-4">
+        <div class="col-lg-3">
+          <select id="sortType" name="type" class="form-select" style="height:48px;">
+            <option value="">Select type</option>
+            <option value="dataset">Datasets</option>
+            <option value="descriptor">Descriptors</option>
+            <option value="protocol">Protocols</option>
+            <option value="function">Transfer functions</option>
+            <option value="document">Literature</option>
+          </select>
+        </div>
+        <div class="col-lg-3">
           <select id="sortSelect" name="sortby" class="form-select" style="height:48px;">
             <option value="title">Sort by title</option>
-            <option value="newest">Recently added</option>
-
+            <option value="-created">Sort by date</option>
           </select>
         </div>
         <div class="col-lg-2">
@@ -163,7 +172,7 @@
 
       <div class="col-lg-5">
         <p class="section-intro mb-0">
-          Soil-Harmony documents the context behind measurements,
+          SoilHarmony documents the context behind measurements,
           identifies differences between protocols and provides
           transparent approaches for making soil information comparable.
         </p>
@@ -184,8 +193,8 @@
           </h3>
 
           <p>
-            Capture sampling depth, analytical method, units,
-            laboratory procedures and other contextual information
+            Capture and tag sampling procedures, descriptors, protocols, units,
+            and other contextual information
             needed to interpret observations.
           </p>
 
@@ -261,13 +270,13 @@
 
           <p class="mt-3">
             Soil observations are collected using diverse sampling
-            designs, laboratory methods and classification systems.
+            designs, laboratory protocols and classification systems.
             Without accounting for these differences, combining datasets
             can introduce systematic inconsistencies.
           </p>
 
           <p>
-            Soil-Harmony develops transparent approaches for integrating
+            SoilHarmony develops transparent approaches for integrating
             these observations while preserving their provenance and
             uncertainty.
           </p>
@@ -289,7 +298,7 @@
           <div class="method-number">PROJECT RESOURCE</div>
 
           <h3>
-            Soil-Harmony methodology guide
+            SoilHarmony methodology guide
           </h3>
 
           <p>
@@ -326,7 +335,7 @@
 
       <div class="col-lg-8">
 
-        <div class="section-kicker">About Soil-Harmony</div>
+        <div class="section-kicker">About SoilHarmony</div>
 
         <h2 class="section-title display-6">
           Building a common language for soil information.
